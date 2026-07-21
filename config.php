@@ -24,4 +24,3 @@ $baseUrl = ($scriptDir === '/' || $scriptDir === '\\') ? '/' : $scriptDir . '/';
 
 define('BASE_URL', $baseUrl);
 
-?>

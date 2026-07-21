@@ -1,10 +1,15 @@
 <?php
-$pageTitle = "Connexion Admin";
-require_once __DIR__ . '/header.php';
+// 1. TRAITEMENT PHP (A FAIRE IMPÉRATIVEMENT AVANT TOUT AFFICHAGE HTML)
+// Inclusion de config.php pour démarrer la session et charger les variables d'environnement
+require_once __DIR__ . '/../config.php';
 
-// Récupération des identifiants depuis les variables d'environnement (ou valeurs par défaut)
-$adminUser = $_ENV['ADMIN_USERNAME'] ?? getenv('ADMIN_USERNAME') ??'';
-$adminPass = $_ENV['ADMIN_PASSWORD'] ?? getenv('ADMIN_PASSWORD') ??'';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Récupération des identifiants depuis les variables d'environnement
+$adminUser = $_ENV['ADMIN_USERNAME'] ?? getenv('ADMIN_USERNAME') ?? '';
+$adminPass = $_ENV['ADMIN_PASSWORD'] ?? getenv('ADMIN_PASSWORD') ?? '';
 
 $error = '';
 
@@ -16,13 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Définition de la variable de session admin
         $_SESSION['admin'] = true;
         
-        // Redirection vers la page d'accueil
+        // La redirection fonctionne à 100% car aucun HTML n'a été envoyé !
         header('Location: index.php?page=home');
         exit;
     } else {
         $error = "Identifiants administrateur incorrects.";
     }
 }
+
+// 2. DEBUT DE L'AFFICHAGE HTML
+$pageTitle = "Connexion Admin";
+require_once __DIR__ . '/header.php';
 ?>
 
 <div class="container py-5 mt-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
