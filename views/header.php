@@ -1,6 +1,6 @@
 <?php
 // 1. Importation du fichier de configuration globale (on remonte d'un dossier si le header est dans /views)
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config.php';
 
 // 2. Gestion sécurisée de la session globale
 if (session_status() === PHP_SESSION_NONE) {

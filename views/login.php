@@ -1,6 +1,6 @@
 <?php
 $pageTitle = "Connexion Admin";
-require_once __DIR__ . '/../header.php';
+require_once __DIR__ . '/header.php';
 
 // Récupération des identifiants depuis les variables d'environnement (ou valeurs par défaut)
 $adminUser = $_ENV['ADMIN_USERNAME'] ?? getenv('ADMIN_USERNAME') ??'';

@@ -1,7 +1,7 @@
 <?php
 $pageTitle = "Accueil";
 // Puisqu'on est dans le dossier views/, le header est juste à côté !
-require_once __DIR__ . '/../header.php';
+require_once __DIR__ . '/header.php';
 ?>
 
 

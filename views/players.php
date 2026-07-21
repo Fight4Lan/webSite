@@ -1,6 +1,6 @@
 <?php
 $pageTitle = "Liste des Joueurs";
-require_once __DIR__ . '/../header.php';
+require_once __DIR__ . '/header.php';
 
 // Chemin vers le fichier JSON
 $jsonPath = __DIR__ . '/../data/players.json';
