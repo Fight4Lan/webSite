@@ -5,27 +5,45 @@ require_once __DIR__ . '/../header.php';
 ?>
 
 
-    <!-- NAV BAR GLOBALE (Style Fight4Lan) -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom border-secondary border-opacity-10" style="background-color: rgba(11, 12, 16, 0.85); backdrop-filter: blur(10px);">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-uppercase tracking-wider" href="#" style="font-family: 'Orbitron', sans-serif;">
-                <span style="color: #ff6b00;">Fight4</span>Lan
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto fw-medium text-uppercase small" style="font-family: 'Orbitron', sans-serif;">
-                    <li class="nav-item"><a class="nav-link active" href="#">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link text-white-50" href="#">Règlement</a></li>
-                    <li class="nav-item"><a class="nav-link text-white-50" href="#">Joueurs</a></li>
-                    <li class="nav-item"><a class="nav-link text-white-50" href="#">Lobby</a></li>
-                    <li class="nav-item"><a class="nav-link text-white-50" href="#">Classements</a></li>
-                    <li class="nav-item"><a class="nav-link text-white-50" href="#">Partenaires</a></li>
-                </ul>
-            </div>
+<!-- NAV BAR -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom border-secondary border-opacity-10" style="background-color: rgba(11, 12, 16, 0.85); backdrop-filter: blur(10px);">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-uppercase tracking-wider" href="<?= BASE_URL ?>index.php" style="font-family: 'Orbitron', sans-serif;">
+            <span style="color: #ff6b00;">Fight4</span>Lan
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto fw-medium text-uppercase small align-items-center gap-2" style="font-family: 'Orbitron', sans-serif;">
+                <li class="nav-item"><a class="nav-link text-white" href="index.php?page=home">Accueil</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=rules">Règlement</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=players">Joueurs</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="#">Lobby</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="#">Classements</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="#">Partenaires</a></li>
+                
+                <!-- BOUTON ADMIN -->
+                <li class="nav-item ms-lg-3">
+                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge border border-warning text-warning" style="background: rgba(255, 193, 7, 0.1);">
+                                <i class="fa-solid fa-shield-halved me-1"></i> Admin
+                            </span>
+                            <a href="index.php?page=logout" class="btn btn-sm btn-outline-danger" title="Déconnexion">
+                                <i class="fa-solid fa-power-off"></i>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <a href="index.php?page=login" class="btn btn-sm text-white px-3" style="background: rgba(255, 107, 0, 0.2); border: 1px solid #ff6b00;">
+                            <i class="fa-solid fa-user-lock me-1"></i> Connexion
+                        </a>
+                    <?php endif; ?>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- HERO SECTION -->
     <div class="d-flex align-items-center pt-5 mt-5" style="background: radial-gradient(circle at 80% 20%, rgba(111, 66, 193, 0.15), transparent 45%); min-height: 70vh;">
@@ -34,14 +52,15 @@ require_once __DIR__ . '/../header.php';
                 <div class="col-lg-6">
                     <span class="badge mb-3 px-3 py-2" style="font-family: 'Orbitron', sans-serif; background-color: rgba(111,66,193,0.2); color: #bb86fc; border: 1px solid #6f42c1;">3ème ÉDITION</span>
                     <h1 class="display-3 fw-bolder mb-3" style="font-family: 'Orbitron', sans-serif; line-height: 1.1;">
-                        REJOINS LE <br><span style="text-shadow: 0 0 20px rgba(0,245,255,0.4); color: #ff6b00;">FIGHT4LAN</span>
+                        REJOINS LE <br><span style="color: #ff6b00;">FIGHT4LAN</span>
                     </h1>
                     <div class="d-sm-flex justify-content-center justify-content-lg-start gap-3">
-                        <a href="#tournois" class="btn text-white px-4 py-3 fw-bold shadow-lg mb-2 mb-sm-0" style="font-family: 'Orbitron', sans-serif; background: linear-gradient(45deg, #6f42c1, #4b2394); box-shadow: 0 0 15px rgba(111, 66, 193, 0.4); border: none;"><i class="fa-solid fa-gamepad me-2"></i>Voir les Tournois</a>
-                        <a href="#" class="btn btn-outline-secondary text-white px-4 py-3 d-inline-flex align-items-center justify-content-center" style="font-family: 'Orbitron', sans-serif;">Discord <i class="fa-brands fa-discord ms-2"></i></a>
+                        <a href="#tournois" class="btn text-white px-4 py-3 fw-bold shadow-lg mb-2 mb-sm-0" style="font-family: 'Orbitron', sans-serif; background: linear-gradient(45deg, #6f42c1, #4b2394); box-shadow: 0 0 15px rgba(111, 66, 193, 0.4); border: none;"><i class="fa-solid fa-gamepad me-2"></i>Voir les Participants</a>
+                        <a href="https://discord.gg/FzaEQhVVvp" class="btn btn-outline-secondary text-white px-4 py-3 d-inline-flex align-items-center justify-content-center" style="font-family: 'Orbitron', sans-serif;">Discord <i class="fa-brands fa-discord ms-2"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block text-center">
+                    <img src="./../img/logo.png" class="absolute inset-0 w-full h-full object-cover">
                     <i class="fa-solid fa-trophy" style="font-size: 14rem; color: #6f42c1; filter: drop-shadow(0 0 30px rgba(111,66,193,0.6));"></i>
                 </div>
             </div>
@@ -71,7 +90,7 @@ require_once __DIR__ . '/../header.php';
                     <div class="d-flex align-items-center justify-content-center gap-3">
                         <i class="fa-solid fa-gamepad fs-2" style="color: #6f42c1; filter: drop-shadow(0 0 8px rgba(111,66,193,0.5));"></i>
                         <div class="text-start">
-                            <h3 class="fw-bold mb-0" style="font-family: 'Orbitron', sans-serif; color: #ff6b00;">6</h3>
+                            <h3 class="fw-bold mb-0" style="font-family: 'Orbitron', sans-serif; color: #6f42c1;">6</h3>
                             <span class="text-secondary small text-uppercase tracking-wider fw-medium">Jeux</span>
                         </div>
                     </div>
@@ -89,7 +108,7 @@ require_once __DIR__ . '/../header.php';
             <div class="col-md-4">
                 <div class="p-4 h-100 border border-secondary border-opacity-10 rounded-3" style="background-color: #1f2833; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(0, 245, 255, 0.1); color: #ff6b00; border-color: rgba(0, 245, 255, 0.2) !important;">COURSE</span>
+                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border-color: rgba(255, 107, 0, 0.25) !important;">COURSE</span>
                         <span class="text-white-50 small"><i class="fa-solid fa-car me-1"></i> Max 8 / course</span>
                     </div>
                     <h4 class="fw-bold mb-2" style="font-family: 'Orbitron', sans-serif;">Disney Speedstorm</h4>
@@ -105,7 +124,7 @@ require_once __DIR__ . '/../header.php';
             <div class="col-md-4">
                 <div class="p-4 h-100 border border-secondary border-opacity-10 rounded-3" style="background-color: #1f2833; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(0, 245, 255, 0.1); color: #ff6b00; border-color: rgba(0, 245, 255, 0.2) !important;">FFA</span>
+                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border-color: rgba(255, 107, 0, 0.25) !important;">FFA</span>
                         <span class="text-white-50 small"><i class="fa-solid fa-crosshairs me-1"></i> Chacun pour soi</span>
                     </div>
                     <h4 class="fw-bold mb-2" style="font-family: 'Orbitron', sans-serif;">Overwatch</h4>
@@ -121,7 +140,7 @@ require_once __DIR__ . '/../header.php';
             <div class="col-md-4">
                 <div class="p-4 h-100 border border-secondary border-opacity-10 rounded-3" style="background-color: #1f2833; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(0, 245, 255, 0.1); color: #ff6b00; border-color: rgba(0, 245, 255, 0.2) !important;">BATTLE ROYALE</span>
+                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border-color: rgba(255, 107, 0, 0.25) !important;">BATTLE ROYALE</span>
                         <span class="text-white-50 small"><i class="fa-solid fa-skull me-1"></i> Battle Royal</span>
                     </div>
                     <h4 class="fw-bold mb-2" style="font-family: 'Orbitron', sans-serif;">Apex Legends</h4>
@@ -137,7 +156,7 @@ require_once __DIR__ . '/../header.php';
             <div class="col-md-4">
                 <div class="p-4 h-100 border border-secondary border-opacity-10 rounded-3" style="background-color: #1f2833; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(0, 245, 255, 0.1); color: #ff6b00; border-color: rgba(0, 245, 255, 0.2) !important;">1 VS 1</span>
+                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border-color: rgba(255, 107, 0, 0.25) !important;">1 VS 1</span>
                         <span class="text-white-50 small"><i class="fa-solid fa-chess-knight me-1"></i> 1v1 </span>
                     </div>
                     <h4 class="fw-bold mb-2" style="font-family: 'Orbitron', sans-serif;">Chess.com</h4>
@@ -153,7 +172,7 @@ require_once __DIR__ . '/../header.php';
             <div class="col-md-4">
                 <div class="p-4 h-100 border border-secondary border-opacity-10 rounded-3" style="background-color: #1f2833; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(0, 245, 255, 0.1); color: #ff6b00; border-color: rgba(0, 245, 255, 0.2) !important;">FFA</span>
+                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border-color: rgba(255, 107, 0, 0.25) !important;">FFA</span>
                         <span class="text-white-50 small"><i class="fa-solid fa-earth-americas me-1"></i> Chacun pour soi</span>
                     </div>
                     <h4 class="fw-bold mb-2" style="font-family: 'Orbitron', sans-serif;">Geoguessr</h4>
@@ -169,7 +188,7 @@ require_once __DIR__ . '/../header.php';
             <div class="col-md-4">
                 <div class="p-4 h-100 border border-secondary border-opacity-10 rounded-3" style="background-color: #1f2833; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(0, 245, 255, 0.1); color: #ff6b00; border-color: rgba(0, 245, 255, 0.2) !important;">1 VS 1</span>
+                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border-color: rgba(255, 107, 0, 0.25) !important;">1 VS 1</span>
                         <span class="text-white-50 small"><i class="fa-solid fa-hand-fist me-1"></i> 1v1</span>
                     </div>
                     <h4 class="fw-bold mb-2" style="font-family: 'Orbitron', sans-serif;">Brawlhalla</h4>

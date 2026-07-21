@@ -1,7 +1,7 @@
 <?php
+// On supprime la variable de session admin
+unset($_SESSION['admin']);
 
-$_SESSION['is_admin'] = false;
-require "./login.php";
+// Redirection vers l'accueil
+header('Location: index.php?page=home');
 exit;
-
-?>

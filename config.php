@@ -16,4 +16,14 @@ define('ADMIN_PASSWORD', getenv('ADMIN_PASSWORD'));
 if (!ADMIN_PASSWORD) {
     die("Erreur critique : La configuration du serveur est incomplète.");
 }
+
+//Config du basepath pour eviter les bugs dans la redirection de la barre de nav
+// Calcule automatiquement la racine selon l'environnement (XAMPP ou Serveur distant)
+$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+$baseUrl = ($scriptDir === '/' || $scriptDir === '\\') ? '/' : $scriptDir . '/';
+
+define('BASE_URL', $baseUrl);
+
 ?>
+
+
