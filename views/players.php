@@ -1,24 +1,10 @@
 <?php
 $pageTitle = "Liste des Joueurs";
 require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/../data/DataManager.php';
 
-// Chemin vers le fichier JSON
-$jsonPath = __DIR__ . '/../data/players.json';
-
-// Charger les joueurs existants
-$joueurs = json_decode(file_get_contents($jsonPath), true) ?? [];
-
-$needSave = false;
-foreach ($joueurs as &$j) {
-    if (!isset($j['id']) || empty($j['id'])) {
-        $j['id'] = uniqid('plr_', true);
-        $needSave = true;
-    }
-}
-unset($j);
-if ($needSave) {
-    file_put_contents($jsonPath, json_encode($joueurs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-}
+// Initialisation du gestionnaire de données
+$dataManager = new DataManager();
 
 // -------------------------------------------------------------
 // TRAITEMENT DES ACTIONS (ADMIN UNIQUEMENT)
@@ -38,20 +24,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $pseudo = trim($_POST['pseudo'] ?? '');
 
             if (!empty($pseudo)) {
-                $nouveauJoueur = [
-                    'id'         => uniqid('plr_', true), // Génération d'un ID unique
-                    'pseudo'     => htmlspecialchars($pseudo),
-                    'DSS'        => htmlspecialchars(trim($_POST['DSS'] ?? '')),
-                    'OW'         => htmlspecialchars(trim($_POST['OW'] ?? '')),
-                    'Apex'       => htmlspecialchars(trim($_POST['Apex'] ?? '')),
-                    'Chess'      => htmlspecialchars(trim($_POST['Chess'] ?? '')),
-                    'GeoGuessr'  => htmlspecialchars(trim($_POST['GeoGuessr'] ?? '')),
-                    'Brawmhalla' => htmlspecialchars(trim($_POST['Brawmhalla'] ?? ''))
-                ];
+                // Instanciation du nouveau Player
+                $nouveauJoueur = new Player(
+                    pseudo: htmlspecialchars($pseudo),
+                    dss: htmlspecialchars(trim($_POST['DSS'] ?? '')),
+                    ow: htmlspecialchars(trim($_POST['OW'] ?? '')),
+                    apex: htmlspecialchars(trim($_POST['Apex'] ?? '')),
+                    chess: htmlspecialchars(trim($_POST['Chess'] ?? '')),
+                    brawlhalla: htmlspecialchars(trim($_POST['Brawmhalla'] ?? ''))
+                );
 
-                $joueurs[] = $nouveauJoueur;
-                file_put_contents($jsonPath, json_encode($joueurs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                $message = "Le joueur " . htmlspecialchars($pseudo) . " a été ajouté avec succès !";
+                if ($dataManager->addPlayer($nouveauJoueur)) {
+                    $message = "Le joueur " . htmlspecialchars($pseudo) . " a été ajouté avec succès !";
+                } else {
+                    $error = "Une erreur est survenue lors de l'enregistrement du joueur.";
+                }
             } else {
                 $error = "Le pseudo principal est obligatoire.";
             }
@@ -62,23 +49,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $idASupprimer = $_POST['id'] ?? '';
             
             if (!empty($idASupprimer)) {
-                $countAvant = count($joueurs);
-                
-                // On filtre le tableau pour retirer le joueur ayant cet ID
-                $joueurs = array_values(array_filter($joueurs, function($j) use ($idASupprimer) {
-                    return $j['id'] !== $idASupprimer;
-                }));
-
-                if (count($joueurs) < $countAvant) {
-                    file_put_contents($jsonPath, json_encode($joueurs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                if ($dataManager->removePlayerById($idASupprimer)) {
                     $message = "Le joueur a été retiré de la LAN avec succès.";
                 } else {
-                    $error = "Impossible de trouver le joueur à supprimer.";
+                    $error = "Impossible de trouver ou de supprimer le joueur sélectionné.";
                 }
             }
         }
     }
 }
+
+// Chargement de la liste des joueurs (instances de Player)
+/** @var Player[] $joueurs */
+$joueurs = $dataManager->getPlayers();
 ?>
 
 <!-- NAV BAR -->
@@ -95,9 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=home">Accueil</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=rules">Règlement</a></li>
                 <li class="nav-item"><a class="nav-link text-white" href="index.php?page=players">Joueurs</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#">Lobby</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#">Classements</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#">Partenaires</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=lobby">Lobby</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=ranking">Classements</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=partners">Partenaires</a></li>
                 
                 <!-- BOUTON ADMIN -->
                 <li class="nav-item ms-lg-3">
@@ -190,11 +173,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             <input type="text" name="Chess" class="form-control form-control-sm bg-dark text-white border-secondary border-opacity-25">
                         </div>
 
-                        <div class="mb-2">
-                            <label class="form-label small text-secondary mb-1">GeoGuessr</label>
-                            <input type="text" name="GeoGuessr" class="form-control form-control-sm bg-dark text-white border-secondary border-opacity-25">
-                        </div>
-
                         <div class="mb-3">
                             <label class="form-label small text-secondary mb-1">Brawlhalla</label>
                             <input type="text" name="Brawmhalla" class="form-control form-control-sm bg-dark text-white border-secondary border-opacity-25">
@@ -233,11 +211,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                     
                                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" 
                                          style="width: 40px; height: 40px; background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border: 1px solid rgba(255, 107, 0, 0.3); flex-shrink: 0;">
-                                        <?= strtoupper(substr($j['pseudo'] ?? 'J', 0, 2)) ?>
+                                        <?= strtoupper(substr($j->getPseudo() !== '' ? $j->getPseudo() : 'J', 0, 2)) ?>
                                     </div>
                                     
                                     <span class="fs-5" style="font-family: 'Orbitron', sans-serif;">
-                                        <?= htmlspecialchars($j['pseudo']) ?>
+                                        <?= htmlspecialchars($j->getPseudo()) ?>
                                     </span>
                                 </button>
 
@@ -247,14 +225,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                         <button type="button" 
                                                 class="btn btn-sm btn-outline-danger border-0" 
                                                 data-bs-toggle="modal" 
-                                                data-bs-target="#deleteModal_<?= $j['id'] ?>" 
+                                                data-bs-target="#deleteModal_<?= $j->getId() ?>" 
                                                 title="Retirer ce joueur">
                                             <i class="fa-solid fa-trash-can fs-6"></i>
                                         </button>
                                     </div>
 
                                     <!-- MODAL DE CONFIRMATION BOOTSTRAP -->
-                                    <div class="modal fade" id="deleteModal_<?= $j['id'] ?>" tabindex="-1" aria-hidden="true">
+                                    <div class="modal fade" id="deleteModal_<?= $j->getId() ?>" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content bg-dark text-white border border-secondary">
                                                 <div class="modal-header border-secondary">
@@ -264,13 +242,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body text-start">
-                                                    Êtes-vous sûr de vouloir retirer le joueur <strong><?= htmlspecialchars($j['pseudo']) ?></strong> de la LAN ?
+                                                    Êtes-vous sûr de vouloir retirer le joueur <strong><?= htmlspecialchars($j->getPseudo()) ?></strong> de la LAN ?
                                                 </div>
                                                 <div class="modal-footer border-secondary">
                                                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Annuler</button>
                                                     <form method="POST" action="" class="d-inline">
                                                         <input type="hidden" name="action" value="supprimer">
-                                                        <input type="hidden" name="id" value="<?= $j['id'] ?>">
+                                                        <input type="hidden" name="id" value="<?= $j->getId() ?>">
                                                         <button type="submit" class="btn btn-sm btn-danger fw-bold">
                                                             Confirmer la suppression
                                                         </button>
@@ -291,42 +269,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                         <div class="col-sm-6">
                                             <div class="p-2 rounded border border-secondary border-opacity-10 d-flex justify-content-between align-items-center bg-dark">
                                                 <span class="small text-secondary"><i class="fa-solid fa-car me-2"></i>Speedstorm</span>
-                                                <span class="fw-medium text-white small"><?= !empty($j['DSS']) ? htmlspecialchars($j['DSS']) : '<em class="text-white-50">Non renseigné</em>' ?></span>
+                                                <span class="fw-medium text-white small"><?= !empty($j->getDss()) ? htmlspecialchars($j->getDss()) : '<em class="text-white-50">Non renseigné</em>' ?></span>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="p-2 rounded border border-secondary border-opacity-10 d-flex justify-content-between align-items-center bg-dark">
                                                 <span class="small text-secondary"><i class="fa-solid fa-crosshairs me-2"></i>Overwatch</span>
-                                                <span class="fw-medium text-white small"><?= !empty($j['OW']) ? htmlspecialchars($j['OW']) : '<em class="text-white-50">Non renseigné</em>' ?></span>
+                                                <span class="fw-medium text-white small"><?= !empty($j->getOw()) ? htmlspecialchars($j->getOw()) : '<em class="text-white-50">Non renseigné</em>' ?></span>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="p-2 rounded border border-secondary border-opacity-10 d-flex justify-content-between align-items-center bg-dark">
                                                 <span class="small text-secondary"><i class="fa-solid fa-skull me-2"></i>Apex</span>
-                                                <span class="fw-medium text-white small"><?= !empty($j['Apex']) ? htmlspecialchars($j['Apex']) : '<em class="text-white-50">Non renseigné</em>' ?></span>
+                                                <span class="fw-medium text-white small"><?= !empty($j->getApex()) ? htmlspecialchars($j->getApex()) : '<em class="text-white-50">Non renseigné</em>' ?></span>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="p-2 rounded border border-secondary border-opacity-10 d-flex justify-content-between align-items-center bg-dark">
                                                 <span class="small text-secondary"><i class="fa-solid fa-chess-knight me-2"></i>Chess.com</span>
-                                                <span class="fw-medium text-white small"><?= !empty($j['Chess']) ? htmlspecialchars($j['Chess']) : '<em class="text-white-50">Non renseigné</em>' ?></span>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-6">
-                                            <div class="p-2 rounded border border-secondary border-opacity-10 d-flex justify-content-between align-items-center bg-dark">
-                                                <span class="small text-secondary"><i class="fa-solid fa-earth-americas me-2"></i>GeoGuessr</span>
-                                                <span class="fw-medium text-white small"><?= !empty($j['GeoGuessr']) ? htmlspecialchars($j['GeoGuessr']) : '<em class="text-white-50">Non renseigné</em>' ?></span>
+                                                <span class="fw-medium text-white small"><?= !empty($j->getChess()) ? htmlspecialchars($j->getChess()) : '<em class="text-white-50">Non renseigné</em>' ?></span>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="p-2 rounded border border-secondary border-opacity-10 d-flex justify-content-between align-items-center bg-dark">
                                                 <span class="small text-secondary"><i class="fa-solid fa-hand-fist me-2"></i>Brawlhalla</span>
-                                                <span class="fw-medium text-white small"><?= !empty($j['Brawmhalla']) ? htmlspecialchars($j['Brawmhalla']) : '<em class="text-white-50">Non renseigné</em>' ?></span>
+                                                <span class="fw-medium text-white small"><?= !empty($j->getBrawlhalla()) ? htmlspecialchars($j->getBrawlhalla()) : '<em class="text-white-50">Non renseigné</em>' ?></span>
                                             </div>
                                         </div>
                                     </div>

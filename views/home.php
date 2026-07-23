@@ -19,9 +19,9 @@ require_once __DIR__ . '/header.php';
                 <li class="nav-item"><a class="nav-link text-white" href="index.php?page=home">Accueil</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=rules">Règlement</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=players">Joueurs</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#">Lobby</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#">Classements</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#">Partenaires</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=lobby">Lobby</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=ranking">Classements</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=partners">Partenaires</a></li>
                 
                 <!-- BOUTON ADMIN -->
                 <li class="nav-item ms-lg-3">
@@ -61,7 +61,7 @@ require_once __DIR__ . '/header.php';
                 </div>
                 <div class="col-lg-6 d-none d-lg-block text-center">
                     <img src="./../img/logo.png" class="absolute inset-0 w-full h-full object-cover">
-                    <i class="fa-solid fa-trophy" style="font-size: 14rem; color: #6f42c1; filter: drop-shadow(0 0 30px rgba(111,66,193,0.6));"></i>
+                    <!-- <i class="fa-solid fa-trophy" style="font-size: 14rem; color: #6f42c1; filter: drop-shadow(0 0 30px rgba(111,66,193,0.6));"></i> -->
                 </div>
             </div>
         </div>
