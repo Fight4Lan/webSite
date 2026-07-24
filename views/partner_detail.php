@@ -30,6 +30,12 @@ $partners = [
         'pp'           => 'img/partners/logo_chinois.png',
         'discord_link' => 'https://discord.gg/4SBvwkeaWB', // Remplacez par le lien réel du Discord
         'pub'          => "# 一緒に より強い – Ensemble, plus forts ! \n Bienvenue sur notre serveur Discord communautaire ! Ambiance chill et un staff à l'écoute - Organisations de parties privées sur Apex Legends sous différents formats et à l'écoute de notre communauté. \n- Salons prévus à l'annonce de vos parties ainsi que pour partager vos lives/pub/communiqués communs. \n- Plusieurs membres streament nos games, notamment Mytsu74, le propriétaire du serveur, sur Twitch et Tik Tok. Sois informé des prochains lives et ne rate aucun contenu du streamer. Participe à la vie de la communauté et échange avec les autres membres ! Que tu sois un habitué des lives ou que tu viennes de découvrir le streamer, tu es le bienvenu parmi nous ! ❤️ \n \nN'attends plus et rejoins nous ! Qui sait ce qui t'attends avec nous ? ✨",
+    ],
+    'axilton' => [
+        'name'         => 'Axilton HUB 💜',
+        'pp'           => 'img/partners/logo_axilton.png', // Pense à placer le logo dans ce dossier
+        'discord_link' => 'https://discord.gg/eQHNNcwPz8',     // Remplace par le lien d'invitation réel
+        'pub'          => "# Axilton HUB 💜\n\nTu cherches une communauté active pour jouer, discuter et rencontrer de nouvelles personnes ? Axilton HUB t’ouvre ses portes !\n\n⛏️ Minecraft est notre jeu principal, mais on joue aussi à plein d’autres jeux selon les envies de la communauté !\n\n## ✨ Ce que tu trouveras :\n\n🌍 Une communauté française accueillante et active.\n⛏️ Des salons dédiés à Minecraft (Survie, Moddé, Créatif, Build…).\n🎮 Des espaces pour tous les autres jeux.\n🎉 Des événements, animations et défis réguliers.\n💬 Une ambiance conviviale, sans prise de tête.\n\nQue tu sois un joueur occasionnel ou un gros gamer, tu trouveras toujours quelqu’un avec qui jouer !"
     ]
 ];
 // Récupération du partenaire sélectionné ou par défaut

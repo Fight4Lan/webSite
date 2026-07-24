@@ -22,6 +22,11 @@ $partners = [
         'id'          => 'chinois',
         'name'        => '一緒に より強い',
         'logo'        => 'img/partners/logo_chinois.png',
+    ],
+    [
+        'id'          => 'axilton',
+        'name'        => 'Axilton HUB 💜',
+        'logo'        => 'img/partners/logo_axilton.png',
     ]
 ];
 ?>
