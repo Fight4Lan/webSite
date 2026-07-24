@@ -76,6 +76,7 @@ require_once __DIR__ . '/header.php';
                     <a href="#art6" class="nav-link text-white-50 text-start py-2 px-3 rounded hover-orange">Art. 6 - Horaires & Briefings</a>
                     <a href="#art7" class="nav-link text-white-50 text-start py-2 px-3 rounded hover-orange">Art. 7 - Jeux & Remplacements</a>
                     <a href="#art8" class="nav-link text-white-50 text-start py-2 px-3 rounded hover-orange">Art. 8 - Profils & Anticheat</a>
+                    <a href="#art9" class="nav-link text-white-50 text-start py-2 px-3 rounded hover-orange">Art. 9 - Hôte de lobby</a>
                 </div>
             </div>
         </div>
@@ -212,6 +213,20 @@ require_once __DIR__ . '/header.php';
                     <p class="text-secondary leading-relaxed mb-0">
                         Les cheats en tout genre ne seront pas utilisés : quoi que ce soit qui vous donne un avantage en jeu est considéré comme tel.
                     </p>
+                </section>
+
+                <!-- ARTICLE 9 -->
+                <section id="art9">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="badge border fw-bold px-2 py-1" style="background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border-color: rgba(255, 107, 0, 0.25) !important;">
+                            ARTICLE 9
+                        </span>
+                        <h3 class="fw-bold mb-0 text-white" style="font-family: 'Orbitron', sans-serif;">Hôte de lobby</h3>
+                    </div>
+                    <p class="text-secondary leading-relaxed mb-2">
+                        Si un joueur désigné comme créateur d'un lobby sur un jeu ne respecte pas les règles ou les cartes indiquées pour la partie en question, il pourra être sanctionné d'une dernière place sur ce même jeu. La partie devra également être rejouée.
+                    </p>
+
                 </section>
 
             </div>

@@ -18,21 +18,30 @@
         "lobbyId": null
     },
     {
-        "id": "sess_6a6368332cdc33.71792703",
+        "id": "sess_6a636cffd07d90.25311410",
         "name": "Apex - Phase de poule 1",
         "game": "Apex Legends",
         "description": "",
-        "isTeam": true,
-        "parentId": null,
-        "lobbyId": "lob_6a6366684a5cd4.59642539"
+        "isTeam": false,
+        "parentId": "sess_6a636cf2ce22b1.92281294",
+        "lobbyId": "lob_6a636ce7d2d365.05130852"
     },
     {
-        "id": "sess_6a636884c10850.23028416",
+        "id": "sess_6a636dd9c47605.15224415",
         "name": "Chess - Phase de poule 1",
         "game": "Chess.com",
         "description": "",
+        "isTeam": true,
+        "parentId": "sess_6a636cf2ce22b1.92281294",
+        "lobbyId": "lob_6a636ce7d2d365.05130852"
+    },
+    {
+        "id": "sess_6a636e51d498f0.68024686",
+        "name": "Apex - Phase de poule 1",
+        "game": "Apex Legends",
+        "description": "",
         "isTeam": false,
         "parentId": null,
-        "lobbyId": "lob_6a6366684a5cd4.59642539"
+        "lobbyId": "lob_6a636ce7d2d365.05130852"
     }
 ]

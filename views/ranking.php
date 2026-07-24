@@ -19,16 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $isAdmin
         $description = trim($_POST['description'] ?? '');
         $parentId = !empty($_POST['parent_id']) ? $_POST['parent_id'] : null;
         $lobbyId = !empty($_POST['lobby_id']) ? $_POST['lobby_id'] : null;
+        
+        // FIX : On prend l'état du switch "Format Équipe"
         $isTeam = isset($_POST['isTeam']);
 
         if (!empty($name)) {
             $gameEnum = !empty($gameValue) ? Game::from($gameValue) : null;
 
-            // Si c'est une sous-session rattachée à une phase, elle peut hériter de son mode équipe
-            if ($parentId !== null) {
+            // Si c'est une sous-session et que la case n'est pas cochée,
+            // on vérifie si la session mère était déjà en équipe
+            if ($parentId !== null && !$isTeam) {
                 $parentSession = $dataManager->getSessionById($parentId);
-                if ($parentSession) {
-                    $isTeam = $parentSession->isTeam();
+                if ($parentSession && $parentSession->isTeam()) {
+                    $isTeam = true;
                 }
             }
 
@@ -42,12 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $isAdmin
             );
 
             if ($dataManager->addSession($newSession)) {
-                $message = "La session/phase <strong>" . htmlspecialchars($name) . "</strong> a été créée !";
+                $message = "La session/phase <strong>" . htmlspecialchars($name) . "</strong> a été créée avec succès !";
             } else {
-                $error = "Erreur lors de l'enregistrement.";
+                $error = "Erreur lors de l'enregistrement dans le fichier JSON.";
             }
         } else {
-            $error = "Le nom est obligatoire.";
+            $error = "Le nom de l'épreuve/phase est obligatoire.";
         }
     }
 
@@ -72,6 +75,7 @@ $allLobbies  = $dataManager->getLobbies();
 $phases = array_filter($allSessions, fn(Session $s) => $s->getParentId() === null);
 ?>
 
+<!-- NAV BAR -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom border-secondary border-opacity-10" style="background-color: rgba(11, 12, 16, 0.85); backdrop-filter: blur(10px);">
     <div class="container">
         <a class="navbar-brand fw-bold text-uppercase tracking-wider" href="<?= BASE_URL ?>index.php" style="font-family: 'Orbitron', sans-serif;">
@@ -89,13 +93,16 @@ $phases = array_filter($allSessions, fn(Session $s) => $s->getParentId() === nul
                 <li class="nav-item"><a class="nav-link text-white" href="index.php?page=ranking">Classements</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=partners">Partenaires</a></li>
                 
+                <!-- BOUTON ADMIN -->
                 <li class="nav-item ms-lg-3">
-                    <?php if ($isAdmin): ?>
+                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge border border-warning text-warning" style="background: rgba(255, 193, 7, 0.1);">
                                 <i class="fa-solid fa-shield-halved me-1"></i> Admin
                             </span>
-                            <a href="index.php?page=logout" class="btn btn-sm btn-outline-danger" title="Déconnexion"><i class="fa-solid fa-power-off"></i></a>
+                            <a href="index.php?page=logout" class="btn btn-sm btn-outline-danger" title="Déconnexion">
+                                <i class="fa-solid fa-power-off"></i>
+                            </a>
                         </div>
                     <?php else: ?>
                         <a href="index.php?page=login" class="btn btn-sm text-white px-3" style="background: rgba(255, 107, 0, 0.2); border: 1px solid #ff6b00;">
@@ -193,9 +200,10 @@ $phases = array_filter($allSessions, fn(Session $s) => $s->getParentId() === nul
                             <textarea name="description" rows="2" class="form-control bg-dark text-white border-secondary border-opacity-25" placeholder="Description courte..."></textarea>
                         </div>
 
+                        <!-- SWITCH BOUTON ÉQUIPE -->
                         <div class="p-3 rounded bg-dark border border-secondary border-opacity-10 mb-3">
                             <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="isTeam" id="isTeam">
+                                <input class="form-check-input" type="checkbox" name="isTeam" id="isTeam" value="1">
                                 <label class="form-check-input-label text-white small fw-bold" for="isTeam">
                                     <i class="fa-solid fa-users me-1 text-info"></i> Format Équipe
                                 </label>
@@ -273,6 +281,9 @@ $phases = array_filter($allSessions, fn(Session $s) => $s->getParentId() === nul
                                                     <div>
                                                         <div class="fw-bold text-white small" style="font-family: 'Orbitron', sans-serif;">
                                                             <?= htmlspecialchars($sub->getName()) ?>
+                                                            <?php if ($sub->isTeam()): ?>
+                                                                <span class="badge border border-info text-info micro-text ms-1"><i class="fa-solid fa-users"></i></span>
+                                                            <?php endif; ?>
                                                         </div>
                                                         <div class="text-warning micro-text">
                                                             <i class="fa-solid fa-gamepad me-1"></i><?= htmlspecialchars($sub->getGame() ? $sub->getGame()->value : 'Jeu non spécifié') ?>

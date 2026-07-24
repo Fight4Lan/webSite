@@ -59,11 +59,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isAdmin) {
         }
     }
 
-    // 3. SUPPRESSIONS
+    // 3. RETIRER UNE ÉQUIPE D'UN LOBBY SPÉCIFIQUE
+    if ($action === 'retirer_equipe_lobby') {
+        $lobbyId = $_POST['lobby_id'] ?? '';
+        $teamId = $_POST['team_id'] ?? '';
+
+        if (!empty($lobbyId) && !empty($teamId)) {
+            $lobby = $dataManager->getLobbyById($lobbyId);
+            if ($lobby) {
+                $currentTeamIds = $lobby->getTeamIds();
+                $updatedTeamIds = array_values(array_filter($currentTeamIds, fn($id) => $id !== $teamId));
+                $lobby->setTeamIds($updatedTeamIds);
+
+                if ($dataManager->updateLobby($lobby)) {
+                    $message = "L'équipe a été retirée du lobby avec succès !";
+                } else {
+                    $error = "Erreur lors du retrait de l'équipe du lobby.";
+                }
+            }
+        }
+    }
+
+    // 4. SUPPRESSION D'UN LOBBY
     if ($action === 'supprimer_lobby') {
         $lobbyId = $_POST['lobby_id'] ?? '';
         if ($dataManager->removeLobbyById($lobbyId)) {
             $message = "Lobby supprimé.";
+        }
+    }
+
+    // 5. SUPPRESSION GLOBALE D'UNE ÉQUIPE
+    if ($action === 'supprimer_equipe_globale') {
+        $teamId = $_POST['team_id'] ?? '';
+        if ($dataManager->removeTeamById($teamId)) {
+            // Nettoyage de l'équipe dans tous les lobbies
+            foreach ($dataManager->getLobbies() as $l) {
+                if (in_array($teamId, $l->getTeamIds())) {
+                    $l->setTeamIds(array_values(array_filter($l->getTeamIds(), fn($id) => $id !== $teamId)));
+                    $dataManager->updateLobby($l);
+                }
+            }
+            $message = "Équipe supprimée globalement.";
         }
     }
 }
@@ -72,6 +108,7 @@ $allPlayers = $dataManager->getPlayers();
 $allLobbies = $dataManager->getLobbies();
 ?>
 
+<!-- NAV BAR -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom border-secondary border-opacity-10" style="background-color: rgba(11, 12, 16, 0.85); backdrop-filter: blur(10px);">
     <div class="container">
         <a class="navbar-brand fw-bold text-uppercase tracking-wider" href="<?= BASE_URL ?>index.php" style="font-family: 'Orbitron', sans-serif;">
@@ -89,13 +126,16 @@ $allLobbies = $dataManager->getLobbies();
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=ranking">Classements</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=partners">Partenaires</a></li>
                 
+                <!-- BOUTON ADMIN -->
                 <li class="nav-item ms-lg-3">
-                    <?php if ($isAdmin): ?>
+                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge border border-warning text-warning" style="background: rgba(255, 193, 7, 0.1);">
                                 <i class="fa-solid fa-shield-halved me-1"></i> Admin
                             </span>
-                            <a href="index.php?page=logout" class="btn btn-sm btn-outline-danger" title="Déconnexion"><i class="fa-solid fa-power-off"></i></a>
+                            <a href="index.php?page=logout" class="btn btn-sm btn-outline-danger" title="Déconnexion">
+                                <i class="fa-solid fa-power-off"></i>
+                            </a>
                         </div>
                     <?php else: ?>
                         <a href="index.php?page=login" class="btn btn-sm text-white px-3" style="background: rgba(255, 107, 0, 0.2); border: 1px solid #ff6b00;">
@@ -114,11 +154,15 @@ $allLobbies = $dataManager->getLobbies();
         <h1 class="display-5 fw-bold text-uppercase" style="font-family: 'Orbitron', sans-serif;">
             Lobbies & <span style="color: #ff6b00;">Équipes</span>
         </h1>
-        <p class="text-secondary">Crée tes lobbies, affecte les joueurs et forme les équipes internes</p>
+        <p class="text-secondary">Crée tes lobbies, affecte les joueurs et forme/gère les équipes internes</p>
     </div>
 
     <?php if (!empty($message)): ?>
         <div class="alert alert-success bg-dark text-success border-success mb-4"><?= $message ?></div>
+    <?php endif; ?>
+
+    <?php if (!empty($error)): ?>
+        <div class="alert alert-danger bg-dark text-danger border-danger mb-4"><?= $error ?></div>
     <?php endif; ?>
 
     <?php if ($isAdmin): ?>
@@ -209,7 +253,9 @@ $allLobbies = $dataManager->getLobbies();
                             <form method="POST" action="" onsubmit="return confirm('Supprimer ce lobby ?');">
                                 <input type="hidden" name="action" value="supprimer_lobby">
                                 <input type="hidden" name="lobby_id" value="<?= $lobby->getId() ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-trash-can"></i></button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Supprimer le lobby">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
                             </form>
                         <?php endif; ?>
                     </div>
@@ -223,16 +269,28 @@ $allLobbies = $dataManager->getLobbies();
                             <div class="d-flex flex-column gap-2 mt-1">
                                 <?php foreach ($lobby->getTeamIds() as $tId): ?>
                                     <?php $team = $dataManager->getTeamById($tId); if (!$team) continue; ?>
-                                    <div class="p-2 rounded border border-secondary border-opacity-10 bg-black bg-opacity-25">
-                                        <div class="fw-bold text-info small"><i class="fa-solid fa-users me-1"></i><?= htmlspecialchars($team->getName()) ?></div>
-                                        <div class="micro-text text-secondary">
-                                            Membres: 
-                                            <?php foreach ($team->getPlayerIds() as $pId): ?>
-                                                <?php $p = $dataManager->getPlayerById($pId); if ($p): ?>
-                                                    <span class="text-white-50 me-1"><?= htmlspecialchars($p->getPseudo()) ?></span>
-                                                <?php endif; ?>
-                                            <?php endforeach; ?>
+                                    <div class="p-2 rounded border border-secondary border-opacity-10 bg-black bg-opacity-25 d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <div class="fw-bold text-info small"><i class="fa-solid fa-users me-1"></i><?= htmlspecialchars($team->getName()) ?></div>
+                                            <div class="micro-text text-secondary">
+                                                Membres: 
+                                                <?php foreach ($team->getPlayerIds() as $pId): ?>
+                                                    <?php $p = $dataManager->getPlayerById($pId); if ($p): ?>
+                                                        <span class="text-white-50 me-1"><?= htmlspecialchars($p->getPseudo()) ?></span>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
+                                        <?php if ($isAdmin): ?>
+                                            <form method="POST" action="" onsubmit="return confirm('Retirer cette équipe du lobby ?');">
+                                                <input type="hidden" name="action" value="retirer_equipe_lobby">
+                                                <input type="hidden" name="lobby_id" value="<?= $lobby->getId() ?>">
+                                                <input type="hidden" name="team_id" value="<?= $team->getId() ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-1" title="Retirer l'équipe du lobby">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -256,3 +314,11 @@ $allLobbies = $dataManager->getLobbies();
     </div>
 
 </div>
+
+<style>
+    .micro-text { font-size: 0.75rem; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

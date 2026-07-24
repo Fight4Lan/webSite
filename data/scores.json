@@ -70,5 +70,77 @@
         "teamName": "F4L",
         "rawScore": 0,
         "rank": 2
+    },
+    {
+        "id": "sco_6a636d379f3d97.49387589",
+        "sessionId": "sess_6a636cffd07d90.25311410",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a62495d884e60.65362560",
+        "teamName": null,
+        "rawScore": 0,
+        "rank": 1
+    },
+    {
+        "id": "sco_6a636d379f5369.62232934",
+        "sessionId": "sess_6a636cffd07d90.25311410",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a624969942c33.67683603",
+        "teamName": null,
+        "rawScore": 0,
+        "rank": 2
+    },
+    {
+        "id": "sco_6a636d37a167d1.97371632",
+        "sessionId": "sess_6a636cffd07d90.25311410",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a624970746c37.63887411",
+        "teamName": null,
+        "rawScore": 0,
+        "rank": 3
+    },
+    {
+        "id": "sco_6a636d37a32623.81591669",
+        "sessionId": "sess_6a636cffd07d90.25311410",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a6249761d9539.02734386",
+        "teamName": null,
+        "rawScore": 0,
+        "rank": 4
+    },
+    {
+        "id": "sco_6a636ddf760022.46845565",
+        "sessionId": "sess_6a636dd9c47605.15224415",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a62495d884e60.65362560",
+        "teamName": "Menestai",
+        "rawScore": 0,
+        "rank": 1
+    },
+    {
+        "id": "sco_6a636ddf7617e1.34150675",
+        "sessionId": "sess_6a636dd9c47605.15224415",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a624969942c33.67683603",
+        "teamName": "Menestai",
+        "rawScore": 0,
+        "rank": 1
+    },
+    {
+        "id": "sco_6a636ddf7838e6.80003241",
+        "sessionId": "sess_6a636dd9c47605.15224415",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a624970746c37.63887411",
+        "teamName": "F4L",
+        "rawScore": 0,
+        "rank": 2
+    },
+    {
+        "id": "sco_6a636ddf79f082.04483992",
+        "sessionId": "sess_6a636dd9c47605.15224415",
+        "lobbyId": "lob_6a636ce7d2d365.05130852",
+        "playerId": "plr_6a6249761d9539.02734386",
+        "teamName": "F4L",
+        "rawScore": 0,
+        "rank": 2
     }
 ]

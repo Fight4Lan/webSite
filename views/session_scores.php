@@ -22,11 +22,22 @@ $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
 $associatedLobby = $session->getLobbyId() ? $dataManager->getLobbyById($session->getLobbyId()) : null;
 
 // -------------------------------------------------------------
-// TRAITEMENT DES ACTIONS ADMIN (SAISIE DES SCORES)
+// TRAITEMENT DES ACTIONS ADMIN (SAISIE SCORES & SUPPRESSION)
 // -------------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isAdmin) {
     $action = $_POST['action'] ?? '';
 
+    // 1. SUPPRESSION DE LA SOUS-SESSION COURANTE
+    if ($action === 'supprimer_sous_session') {
+        if ($dataManager->removeSessionById($session->getId())) {
+            header('Location: index.php?page=ranking');
+            exit();
+        } else {
+            $error = "Erreur lors de la suppression de la sous-session.";
+        }
+    }
+
+    // 2. ENREGISTREMENT DES SCORES
     if ($action === 'sauvegarder_scores') {
         $ranks = $_POST['ranks'] ?? [];
         $successCount = 0;
@@ -127,7 +138,6 @@ if ($session->isPhase()) {
 }
 ?>
 
-<!-- NAV BAR -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom border-secondary border-opacity-10" style="background-color: rgba(11, 12, 16, 0.85); backdrop-filter: blur(10px);">
     <div class="container">
         <a class="navbar-brand fw-bold text-uppercase tracking-wider" href="<?= BASE_URL ?>index.php" style="font-family: 'Orbitron', sans-serif;">
@@ -139,9 +149,11 @@ if ($session->isPhase()) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto fw-medium text-uppercase small align-items-center gap-2" style="font-family: 'Orbitron', sans-serif;">
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=home">Accueil</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=rules">Règlement</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=players">Joueurs</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=lobby">Lobby</a></li>
                 <li class="nav-item"><a class="nav-link text-white" href="index.php?page=ranking">Classements</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=partners">Partenaires</a></li>
                 
                 <li class="nav-item ms-lg-3">
                     <?php if ($isAdmin): ?>
@@ -207,6 +219,18 @@ if ($session->isPhase()) {
                     <p class="text-secondary small mb-0"><?= htmlspecialchars($session->getDescription()) ?></p>
                 <?php endif; ?>
             </div>
+
+            <!-- BOUTON DE SUPPRESSION ADMIN -->
+            <?php if ($isAdmin): ?>
+                <div>
+                    <form method="POST" action="" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette épreuve / sous-session ?');">
+                        <input type="hidden" name="action" value="supprimer_sous_session">
+                        <button type="submit" class="btn btn-outline-danger btn-sm fw-bold">
+                            <i class="fa-solid fa-trash-can me-2"></i> Supprimer l'épreuve
+                        </button>
+                    </form>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -251,7 +275,6 @@ if ($session->isPhase()) {
                         <tbody>
                             <?php if ($session->isTeam()): ?>
                                 <?php 
-                                    // Si un lobby est associé, on filtre ses équipes, sinon toutes les équipes
                                     $teamsToDisplay = $associatedLobby ? 
                                         array_filter($allTeams, fn($t) => in_array($t->getId(), $associatedLobby->getTeamIds())) : 
                                         $allTeams;
@@ -273,7 +296,6 @@ if ($session->isPhase()) {
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <?php 
-                                    // Si un lobby est associé, on filtre ses joueurs, sinon tous les joueurs
                                     $playersToDisplay = $associatedLobby ? 
                                         array_filter($allPlayers, fn($p) => in_array($p->getId(), $associatedLobby->getPlayerIds())) : 
                                         $allPlayers;
@@ -323,6 +345,7 @@ if ($session->isPhase()) {
                             <tr class="text-secondary small text-uppercase" style="font-family: 'Orbitron', sans-serif;">
                                 <th style="width: 120px;">Rang Général</th>
                                 <th><?= $session->isTeam() ? 'Équipe' : 'Joueur' ?></th>
+                                <th class="text-end" style="width: 220px;">Points Cumulés</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -343,6 +366,9 @@ if ($session->isPhase()) {
                                                 echo htmlspecialchars($p ? $p->getPseudo() : 'Joueur inconnu');
                                             }
                                         ?>
+                                    </td>
+                                    <td class="text-end fw-bold text-warning fs-5" style="font-family: 'Orbitron', sans-serif;">
+                                        <?= $totalRankSum ?> <span class="small text-secondary">pts</span>
                                     </td>
                                 </tr>
                             <?php $rankCounter++; endforeach; ?>

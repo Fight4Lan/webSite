@@ -24,9 +24,14 @@ $partners = [
         'pp'           => 'img/partners/logo_gala.jpg',
         'discord_link' => 'https://discord.gg/YcQSfFyuFD',
         'pub'          => "# 🚀︱Galactite Bedrock︱🚀\n## Embarquez pour une odyssée galactique ! 🌌\n────────────────────\n\n## 🎮 *Qu’est-ce que Galactite ?*\nGalactite est un **serveur Minecraft Bedrock UHC** fondé par **DarkoZz & Mathieu** en 2019, réouvert en 2024 avec une ambition claire :\n→ Proposer un **serveur original, qualitatif et pensé pour les joueurs Bedrock**.\n\n## 🛠️ *Network ouvert 24h/24*\n- → ⭐ **Accumule des __Astres__ et transforme-les en __Étoiles__**\n- → 🧑‍💻 **__Crée__ tes propres parties __gratuitement__ grâce à tes Étoiles**\n- → 🛍️ **Boutique du Network : __cosmétiques, grades, monnaie__**\n- → 📆 **__Événements__ communautaires & __tournois__ uniques**\n- → 🧠 **Staff à l'écoute & règlement transparent**\n\n## 🎤 *Chat de Proximité*\nGalactite intègre un **système de chat de proximité** fonctionnant comme Mumble\n➡️ **Mais directement via une page web**, sans installation.\n\nCe système permet :\n- de parler **uniquement avec les joueurs proches de vous**,\n- d’avoir un volume qui varie selon la distance,\n- de vivre une expérience **immersive**, idéale pour les UHC à rôles.\n\n> ⚠️ Le chat de proximité est actuellement en **version expérimentale**.\n\n## 🧪 *Modes de jeu disponibles*\nInspirés des serveurs Java, adaptés pour Bedrock :\n- 🐺 • **Loup‑Garou UHC** – Meetup / Minage\n- 🛡️ • **Attack On Titans UHC** – Meetup\n- 👺 • **Demon Slayer UHC** – Meetup\n- 💨 • **Naruto UHC (Soon)** – Meetup\n- 📚 • **Death Note UHC v3** – Minage\n- 👥 • **Team Swappers UHC** – Meetup\n- ☁️ • **Player Market UHC (Soon)** – Meetup\n- 🍎 • **UHC Classique & similaires** – Minage\n→ Et bien d’autres en développement…\n\n## ✨ Et plein de nouveautés à venir ! 📣\n> *\"L’univers est grand, mais notre soif de découverte l’est encore plus.\"*\n> – Carl Sagan"
+    ],
+    'chinois' => [
+        'name'         => '一緒に より強い',
+        'pp'           => 'img/partners/logo_chinois.png',
+        'discord_link' => 'https://discord.gg/4SBvwkeaWB', // Remplacez par le lien réel du Discord
+        'pub'          => "# 一緒に より強い – Ensemble, plus forts ! \n Bienvenue sur notre serveur Discord communautaire ! Ambiance chill et un staff à l'écoute - Organisations de parties privées sur Apex Legends sous différents formats et à l'écoute de notre communauté. \n- Salons prévus à l'annonce de vos parties ainsi que pour partager vos lives/pub/communiqués communs. \n- Plusieurs membres streament nos games, notamment Mytsu74, le propriétaire du serveur, sur Twitch et Tik Tok. Sois informé des prochains lives et ne rate aucun contenu du streamer. Participe à la vie de la communauté et échange avec les autres membres ! Que tu sois un habitué des lives ou que tu viennes de découvrir le streamer, tu es le bienvenu parmi nous ! ❤️ \n \nN'attends plus et rejoins nous ! Qui sait ce qui t'attends avec nous ? ✨",
     ]
 ];
-
 // Récupération du partenaire sélectionné ou par défaut
 $partner = $partners[$partnerId] ?? $partners['despia-uhc'];
 
@@ -34,7 +39,7 @@ $partner = $partners[$partnerId] ?? $partners['despia-uhc'];
  * Moteur de rendu du Markdown Discord basique vers du HTML propre
  */
 function parseDiscordMarkdown(string $text): string {
-    $text = htmlspecialchars($text);
+    $text = htmlspecialchars($text);    
 
     // Titres (# et ##)
     $text = preg_replace('/^# (.*?)$/m', '<h2 class="fw-bold text-white mb-2" style="font-family:\'Orbitron\', sans-serif; color: #ff6b00;">$1</h2>', $text);

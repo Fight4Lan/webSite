@@ -17,6 +17,11 @@ $partners = [
         'id'          => 'gala',
         'name'        => 'Galactite UHC',
         'logo'        => 'img/partners/logo_gala.jpg',
+    ],
+    [
+        'id'          => 'chinois',
+        'name'        => '一緒に より強い',
+        'logo'        => 'img/partners/logo_chinois.png',
     ]
 ];
 ?>
