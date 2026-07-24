@@ -1,1 +1,74 @@
-[]
+[
+    {
+        "id": "sco_6a6356cdbb70d0.60088396",
+        "sessionId": "sess_6a6356b48e5d08.02202337",
+        "lobbyId": null,
+        "playerId": "plr_6a62495d884e60.65362560",
+        "teamName": "Menestai",
+        "rawScore": 0,
+        "rank": 1
+    },
+    {
+        "id": "sco_6a6356cdbb8645.73402546",
+        "sessionId": "sess_6a6356b48e5d08.02202337",
+        "lobbyId": null,
+        "playerId": "plr_6a624969942c33.67683603",
+        "teamName": "Menestai",
+        "rawScore": 0,
+        "rank": 1
+    },
+    {
+        "id": "sco_6a6356cdbd7eb1.54084537",
+        "sessionId": "sess_6a6356b48e5d08.02202337",
+        "lobbyId": null,
+        "playerId": "plr_6a624970746c37.63887411",
+        "teamName": "F4L",
+        "rawScore": 0,
+        "rank": 2
+    },
+    {
+        "id": "sco_6a6356cdbf0da3.55468146",
+        "sessionId": "sess_6a6356b48e5d08.02202337",
+        "lobbyId": null,
+        "playerId": "plr_6a6249761d9539.02734386",
+        "teamName": "F4L",
+        "rawScore": 0,
+        "rank": 2
+    },
+    {
+        "id": "sco_6a63570b9d65e4.65145914",
+        "sessionId": "sess_6a635703410435.44457817",
+        "lobbyId": null,
+        "playerId": "plr_6a62495d884e60.65362560",
+        "teamName": "Menestai",
+        "rawScore": 0,
+        "rank": 1
+    },
+    {
+        "id": "sco_6a63570b9d8001.83871877",
+        "sessionId": "sess_6a635703410435.44457817",
+        "lobbyId": null,
+        "playerId": "plr_6a624969942c33.67683603",
+        "teamName": "Menestai",
+        "rawScore": 0,
+        "rank": 1
+    },
+    {
+        "id": "sco_6a63570b9f6fb4.04233213",
+        "sessionId": "sess_6a635703410435.44457817",
+        "lobbyId": null,
+        "playerId": "plr_6a624970746c37.63887411",
+        "teamName": "F4L",
+        "rawScore": 0,
+        "rank": 2
+    },
+    {
+        "id": "sco_6a63570ba10a79.21993483",
+        "sessionId": "sess_6a635703410435.44457817",
+        "lobbyId": null,
+        "playerId": "plr_6a6249761d9539.02734386",
+        "teamName": "F4L",
+        "rawScore": 0,
+        "rank": 2
+    }
+]

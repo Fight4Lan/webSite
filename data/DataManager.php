@@ -1,8 +1,8 @@
 <?php
 
-// Chargement de toutes les entités depuis /entities/
 require_once __DIR__ . '/../entities/Game.php';
 require_once __DIR__ . '/../entities/Player.php';
+require_once __DIR__ . '/../entities/Team.php';
 require_once __DIR__ . '/../entities/Lobby.php';
 require_once __DIR__ . '/../entities/Session.php';
 require_once __DIR__ . '/../entities/Score.php';
@@ -10,13 +10,16 @@ require_once __DIR__ . '/../entities/Score.php';
 class DataManager
 {
     private string $playersPath;
+    private string $teamsPath;
+    private string $lobbiesPath;
     private string $sessionsPath;
     private string $scoresPath;
 
     public function __construct()
     {
-        // Chemins absolus vers les fichiers JSON du dossier /data/
         $this->playersPath  = __DIR__ . '/players.json';
+        $this->teamsPath    = __DIR__ . '/teams.json';
+        $this->lobbiesPath  = __DIR__ . '/lobbies.json';
         $this->sessionsPath = __DIR__ . '/sessions.json';
         $this->scoresPath   = __DIR__ . '/scores.json';
     }
@@ -63,6 +66,16 @@ class DataManager
         return $this->savePlayers($players);
     }
 
+    public function getPlayerById(string $id): ?Player
+    {
+        foreach ($this->getPlayers() as $player) {
+            if ($player->getId() === $id) {
+                return $player;
+            }
+        }
+        return null;
+    }
+
     public function removePlayerById(string $id): bool
     {
         $players = $this->getPlayers();
@@ -77,18 +90,160 @@ class DataManager
         return $this->savePlayers(array_values($filtered));
     }
 
-    public function getPlayerById(string $id): ?Player
+    // ==========================================
+    // 2. GESTION DES ÉQUIPES (TEAMS)
+    // ==========================================
+
+    /**
+     * @return Team[]
+     */
+    public function getTeams(): array
     {
-        foreach ($this->getPlayers() as $player) {
-            if ($player->getId() === $id) {
-                return $player;
+        if (!file_exists($this->teamsPath)) {
+            return [];
+        }
+
+        $data = json_decode(file_get_contents($this->teamsPath), true);
+        if (!is_array($data)) {
+            return [];
+        }
+
+        $teams = [];
+        foreach ($data as $teamData) {
+            $teams[] = Team::fromArray($teamData);
+        }
+
+        return $teams;
+    }
+
+    /**
+     * @param Team[] $teams
+     */
+    private function saveTeams(array $teams): bool
+    {
+        $data = array_map(fn(Team $t) => $t->toArray(), $teams);
+        return file_put_contents($this->teamsPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false;
+    }
+
+    public function addTeam(Team $team): bool
+    {
+        $teams = $this->getTeams();
+        $teams[] = $team;
+        return $this->saveTeams($teams);
+    }
+
+    public function getTeamById(string $id): ?Team
+    {
+        foreach ($this->getTeams() as $team) {
+            if ($team->getId() === $id) {
+                return $team;
             }
         }
         return null;
     }
 
+    public function removeTeamById(string $id): bool
+    {
+        $teams = $this->getTeams();
+        $initialCount = count($teams);
+
+        $filtered = array_filter($teams, fn(Team $t) => $t->getId() !== $id);
+
+        if (count($filtered) === $initialCount) {
+            return false;
+        }
+
+        return $this->saveTeams(array_values($filtered));
+    }
+
     // ==========================================
-    // 2. GESTION DES SESSIONS & LOBBIES
+    // 3. GESTION DES LOBBIES / POULES (LOBBIES)
+    // ==========================================
+
+    /**
+     * @return Lobby[]
+     */
+    public function getLobbies(): array
+    {
+        if (!file_exists($this->lobbiesPath)) {
+            return [];
+        }
+
+        $data = json_decode(file_get_contents($this->lobbiesPath), true);
+        if (!is_array($data)) {
+            return [];
+        }
+
+        $lobbies = [];
+        foreach ($data as $lobbyData) {
+            $lobbies[] = Lobby::fromArray($lobbyData);
+        }
+
+        return $lobbies;
+    }
+
+    /**
+     * @param Lobby[] $lobbies
+     */
+    private function saveLobbies(array $lobbies): bool
+    {
+        $data = array_map(fn(Lobby $l) => $l->toArray(), $lobbies);
+        return file_put_contents($this->lobbiesPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false;
+    }
+
+    public function addLobby(Lobby $lobby): bool
+    {
+        $lobbies = $this->getLobbies();
+        $lobbies[] = $lobby;
+        return $this->saveLobbies($lobbies);
+    }
+
+    public function getLobbyById(string $id): ?Lobby
+    {
+        foreach ($this->getLobbies() as $lobby) {
+            if ($lobby->getId() === $id) {
+                return $lobby;
+            }
+        }
+        return null;
+    }
+
+    public function updateLobby(Lobby $updatedLobby): bool
+    {
+        $lobbies = $this->getLobbies();
+        $found = false;
+
+        foreach ($lobbies as $key => $lobby) {
+            if ($lobby->getId() === $updatedLobby->getId()) {
+                $lobbies[$key] = $updatedLobby;
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            return false;
+        }
+
+        return $this->saveLobbies($lobbies);
+    }
+
+    public function removeLobbyById(string $id): bool
+    {
+        $lobbies = $this->getLobbies();
+        $initialCount = count($lobbies);
+
+        $filtered = array_filter($lobbies, fn(Lobby $l) => $l->getId() !== $id);
+
+        if (count($filtered) === $initialCount) {
+            return false;
+        }
+
+        return $this->saveLobbies(array_values($filtered));
+    }
+
+    // ==========================================
+    // 4. GESTION DES SESSIONS (SESSIONS)
     // ==========================================
 
     /**
@@ -139,6 +294,26 @@ class DataManager
         return null;
     }
 
+    public function updateSession(Session $updatedSession): bool
+    {
+        $sessions = $this->getSessions();
+        $found = false;
+
+        foreach ($sessions as $key => $session) {
+            if ($session->getId() === $updatedSession->getId()) {
+                $sessions[$key] = $updatedSession;
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            return false;
+        }
+
+        return $this->saveSessions($sessions);
+    }
+
     public function removeSessionById(string $id): bool
     {
         $sessions = $this->getSessions();
@@ -150,33 +325,11 @@ class DataManager
             return false;
         }
 
-        // On supprime aussi tous les scores associés à cette session
-        $this->removeScoresBySessionId($id);
-
         return $this->saveSessions(array_values($filtered));
     }
 
-    /**
-     * Permet de sauvegarder des modifications apportées à une session existante (ex: ajout d'un lobby)
-     */
-    public function updateSession(Session $updatedSession): bool
-    {
-        $sessions = $this->getSessions();
-        $updated = false;
-
-        foreach ($sessions as $index => $session) {
-            if ($session->getId() === $updatedSession->getId()) {
-                $sessions[$index] = $updatedSession;
-                $updated = true;
-                break;
-            }
-        }
-
-        return $updated ? $this->saveSessions($sessions) : false;
-    }
-
     // ==========================================
-    // 3. GESTION DES SCORES / RÉSULTATS
+    // 5. GESTION DES SCORES (SCORES)
     // ==========================================
 
     /**
@@ -210,8 +363,28 @@ class DataManager
         return file_put_contents($this->scoresPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false;
     }
 
+    public function saveOrUpdateScore(Score $newScore): bool
+    {
+        $scores = $this->getScores();
+        $found = false;
+
+        foreach ($scores as $key => $score) {
+            if ($score->getSessionId() === $newScore->getSessionId() && 
+                $score->getPlayerId() === $newScore->getPlayerId()) {
+                $scores[$key] = $newScore;
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            $scores[] = $newScore;
+        }
+
+        return $this->saveScores($scores);
+    }
+
     /**
-     * Récupère les scores pour une session donnée
      * @return Score[]
      */
     public function getScoresBySessionId(string $sessionId): array
@@ -223,7 +396,6 @@ class DataManager
     }
 
     /**
-     * Récupère les scores pour un lobby spécifique
      * @return Score[]
      */
     public function getScoresByLobbyId(string $lobbyId): array
@@ -232,43 +404,5 @@ class DataManager
             $this->getScores(),
             fn(Score $s) => $s->getLobbyId() === $lobbyId
         ));
-    }
-
-    /**
-     * Ajoute ou met à jour le score d'un joueur dans une session
-     */
-    public function saveOrUpdateScore(Score $score): bool
-    {
-        $scores = $this->getScores();
-        $found = false;
-
-        // Si le score existe déjà pour ce joueur et cette session, on le met à jour
-        foreach ($scores as $index => $existingScore) {
-            if (
-                $existingScore->getSessionId() === $score->getSessionId() &&
-                $existingScore->getPlayerId() === $score->getPlayerId()
-            ) {
-                $scores[$index] = $score;
-                $found = true;
-                break;
-            }
-        }
-
-        // Sinon on l'ajoute
-        if (!$found) {
-            $scores[] = $score;
-        }
-
-        return $this->saveScores($scores);
-    }
-
-    /**
-     * Supprime tous les scores liés à une session
-     */
-    public function removeScoresBySessionId(string $sessionId): bool
-    {
-        $scores = $this->getScores();
-        $filtered = array_filter($scores, fn(Score $s) => $s->getSessionId() !== $sessionId);
-        return $this->saveScores(array_values($filtered));
     }
 }

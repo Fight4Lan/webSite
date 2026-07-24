@@ -199,16 +199,6 @@ require_once __DIR__ . '/header.php';
                     </div>
                 </div>
             </div>
-
-            <div class="bg-gradient-to-br from-naga-panel to-naga-panel-2 border border-[rgba(140,151,173,.16)] relative transition-transform duration-[.22s] hover:-translate-y-[5px] clip overflow-hidden">
-                <div class="ph relative aspect-[16/10]">
-                    <div class="ph-glow"></div>
-                    <img src="./../img/logo.png" class="absolute inset-0 w-full h-full object-cover">
-                </div>
-                <div class="p-4 pb-[18px]">
-                    <h3 class="font-disp font-bold text-[18px] uppercase m-0"> Test </h3>
-                </div>
-            </div>
         </div>
     </div>
 

@@ -1,58 +1,38 @@
 [
     {
-        "id": "sess_6a62516154e211.95534099",
+        "id": "sess_6a6356b48e5d08.02202337",
         "name": "Apex - Phase de poule 1",
         "game": "Apex Legends",
-        "description": "apex 1ere game - poules",
-        "isTeam": false,
-        "hasLobbies": true,
-        "lobbies": [
-            {
-                "id": "lob_6a625168a540e9.14850745",
-                "sessionId": "sess_6a62516154e211.95534099",
-                "name": "Menestai",
-                "playerIds": [
-                    "plr_6a62495d884e60.65362560",
-                    "plr_6a624969942c33.67683603"
-                ]
-            },
-            {
-                "id": "lob_6a62516cab5428.95529213",
-                "sessionId": "sess_6a62516154e211.95534099",
-                "name": "F4L",
-                "playerIds": [
-                    "plr_6a624970746c37.63887411",
-                    "plr_6a6249761d9539.02734386"
-                ]
-            }
-        ]
+        "description": "",
+        "isTeam": true,
+        "parentId": "sess_6a63568d996937.59306712",
+        "lobbyId": null
     },
     {
-        "id": "sess_6a6251acb2f791.98858863",
-        "name": "GoeGuessr en team",
+        "id": "sess_6a635703410435.44457817",
+        "name": "Geoguessr - Phase de poule 1",
         "game": "GeoGuessr",
-        "description": "1ere game de geoguessr, en team",
+        "description": "",
         "isTeam": true,
-        "hasLobbies": false,
-        "lobbies": [
-            {
-                "id": "lob_6a62521fcdd4e2.95030623",
-                "sessionId": "sess_6a6251acb2f791.98858863",
-                "name": "Menestai",
-                "playerIds": [
-                    "plr_6a62495d884e60.65362560",
-                    "plr_6a624969942c33.67683603"
-                ]
-            }
-        ]
+        "parentId": "sess_6a63568d996937.59306712",
+        "lobbyId": null
     },
     {
-        "id": "sess_6a62524a2d7400.76569848",
-        "name": "Overwatch - Phase de poule 1",
-        "game": "Overwatch",
-        "description": "Overwatch en team ET en equipe",
+        "id": "sess_6a6368332cdc33.71792703",
+        "name": "Apex - Phase de poule 1",
+        "game": "Apex Legends",
+        "description": "",
         "isTeam": true,
-        "hasLobbies": true,
-        "lobbies": []
+        "parentId": null,
+        "lobbyId": "lob_6a6366684a5cd4.59642539"
+    },
+    {
+        "id": "sess_6a636884c10850.23028416",
+        "name": "Chess - Phase de poule 1",
+        "game": "Chess.com",
+        "description": "",
+        "isTeam": false,
+        "parentId": null,
+        "lobbyId": "lob_6a6366684a5cd4.59642539"
     }
 ]

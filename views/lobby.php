@@ -1,20 +1,77 @@
 <?php
-$pageTitle = "Lobbies";
+$pageTitle = "Gestion des Lobbies & Équipes";
 require_once __DIR__ . '/header.php';
 require_once __DIR__ . '/../data/DataManager.php';
 
 $dataManager = new DataManager();
 
-// Récupération de toutes les sessions
-$sessions = $dataManager->getSessions();
+$message = "";
+$error = "";
+$isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
 
-// Filtrer pour ne garder que les sessions qui contiennent des lobbies
-$sessionsWithLobbies = array_filter($sessions, function (Session $s) {
-    return $s->hasLobbies() && !empty($s->getLobbies());
-});
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isAdmin) {
+    $action = $_POST['action'] ?? '';
+
+    // 1. CRÉATION D'UN LOBBY (AVEC SES JOUEURS)
+    if ($action === 'creer_lobby') {
+        $lobbyName = trim($_POST['lobby_name'] ?? '');
+        $selectedPlayers = $_POST['lobby_players'] ?? [];
+
+        if (!empty($lobbyName)) {
+            $newLobby = new Lobby(
+                name: htmlspecialchars($lobbyName),
+                playerIds: $selectedPlayers
+            );
+
+            if ($dataManager->addLobby($newLobby)) {
+                $message = "Le lobby <strong>" . htmlspecialchars($lobbyName) . "</strong> a été créé !";
+            } else {
+                $error = "Erreur lors de la création du lobby.";
+            }
+        } else {
+            $error = "Le nom du lobby est obligatoire.";
+        }
+    }
+
+    // 2. CRÉATION D'UNE ÉQUIPE AU SEIN D'UN LOBBY
+    if ($action === 'creer_equipe_lobby') {
+        $lobbyId = $_POST['lobby_id'] ?? '';
+        $teamName = trim($_POST['team_name'] ?? '');
+        $selectedPlayers = $_POST['team_players'] ?? [];
+
+        if (!empty($lobbyId) && !empty($teamName) && !empty($selectedPlayers)) {
+            $lobby = $dataManager->getLobbyById($lobbyId);
+            if ($lobby) {
+                $newTeam = new Team(
+                    name: htmlspecialchars($teamName),
+                    playerIds: $selectedPlayers
+                );
+                
+                // Enregistrement de l'équipe et association au lobby
+                $dataManager->addTeam($newTeam);
+                $lobby->addTeamId($newTeam->getId());
+                $dataManager->updateLobby($lobby);
+
+                $message = "L'équipe <strong>" . htmlspecialchars($teamName) . "</strong> a été ajoutée au lobby !";
+            }
+        } else {
+            $error = "Veuillez choisir un lobby, un nom d'équipe et au moins un joueur.";
+        }
+    }
+
+    // 3. SUPPRESSIONS
+    if ($action === 'supprimer_lobby') {
+        $lobbyId = $_POST['lobby_id'] ?? '';
+        if ($dataManager->removeLobbyById($lobbyId)) {
+            $message = "Lobby supprimé.";
+        }
+    }
+}
+
+$allPlayers = $dataManager->getPlayers();
+$allLobbies = $dataManager->getLobbies();
 ?>
 
-<!-- NAV BAR -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom border-secondary border-opacity-10" style="background-color: rgba(11, 12, 16, 0.85); backdrop-filter: blur(10px);">
     <div class="container">
         <a class="navbar-brand fw-bold text-uppercase tracking-wider" href="<?= BASE_URL ?>index.php" style="font-family: 'Orbitron', sans-serif;">
@@ -32,16 +89,13 @@ $sessionsWithLobbies = array_filter($sessions, function (Session $s) {
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=ranking">Classements</a></li>
                 <li class="nav-item"><a class="nav-link text-white-50" href="index.php?page=partners">Partenaires</a></li>
                 
-                <!-- BOUTON ADMIN -->
                 <li class="nav-item ms-lg-3">
-                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
+                    <?php if ($isAdmin): ?>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge border border-warning text-warning" style="background: rgba(255, 193, 7, 0.1);">
                                 <i class="fa-solid fa-shield-halved me-1"></i> Admin
                             </span>
-                            <a href="index.php?page=logout" class="btn btn-sm btn-outline-danger" title="Déconnexion">
-                                <i class="fa-solid fa-power-off"></i>
-                            </a>
+                            <a href="index.php?page=logout" class="btn btn-sm btn-outline-danger" title="Déconnexion"><i class="fa-solid fa-power-off"></i></a>
                         </div>
                     <?php else: ?>
                         <a href="index.php?page=login" class="btn btn-sm text-white px-3" style="background: rgba(255, 107, 0, 0.2); border: 1px solid #ff6b00;">
@@ -56,110 +110,149 @@ $sessionsWithLobbies = array_filter($sessions, function (Session $s) {
 
 <div class="container py-5 mt-5">
 
-    <!-- TITRE DE LA PAGE -->
     <div class="text-center mb-5">
         <h1 class="display-5 fw-bold text-uppercase" style="font-family: 'Orbitron', sans-serif;">
-            Lobbies
+            Lobbies & <span style="color: #ff6b00;">Équipes</span>
         </h1>
-        <p class="text-secondary">Retrouve la répartition des joueurs par lobby pour chaque session de jeu</p>
+        <p class="text-secondary">Crée tes lobbies, affecte les joueurs et forme les équipes internes</p>
     </div>
 
-    <?php if (empty($sessionsWithLobbies)): ?>
-        <!-- AUCUN LOBBY CRÉÉ -->
-        <div class="p-5 rounded-3 text-center border border-secondary border-opacity-10" style="background-color: #1f2833;">
-            <i class="fa-solid fa-gamepad fs-1 text-secondary mb-3"></i>
-            <h4 class="fw-bold text-white mb-2" style="font-family: 'Orbitron', sans-serif;">Aucun lobby actif</h4>
-            <p class="text-secondary mb-0">Les poules et lobbies des prochaines sessions seront affichés ici dès leur création par l'administration.</p>
-        </div>
-    <?php else: ?>
-        <!-- LISTE DES SESSIONS ET LEURS LOBBIES -->
-        <div class="row g-4 justify-content-center">
-            <?php foreach ($sessionsWithLobbies as $session): ?>
-                <div class="col-12">
-                    <div class="p-4 rounded-3 border border-secondary border-opacity-10" style="background-color: #1f2833;">
-                        
-                        <!-- EN-TÊTE DE LA SESSION -->
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-                            <div>
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <span class="badge border border-warning text-warning" style="background: rgba(255, 193, 7, 0.1);">
-                                        <i class="fa-solid fa-gamepad me-1"></i> <?= htmlspecialchars($session->getGame()->value) ?>
-                                    </span>
-                                    <?php if ($session->isTeam()): ?>
-                                        <span class="badge border border-info text-info" style="background: rgba(13, 202, 240, 0.1);">
-                                            <i class="fa-solid fa-users me-1"></i> En Équipe
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge border border-secondary text-secondary bg-dark">
-                                            <i class="fa-solid fa-user me-1"></i> Solo
-                                        </span>
-                                    <?php endif; ?>
-                                </div>
-                                <h3 class="fw-bold text-white mb-0" style="font-family: 'Orbitron', sans-serif;">
-                                    <?= htmlspecialchars($session->getName()) ?>
-                                </h3>
-                                <?php if (!empty($session->getDescription())): ?>
-                                    <p class="text-secondary small mb-0 mt-1"><?= htmlspecialchars($session->getDescription()) ?></p>
-                                <?php endif; ?>
-                            </div>
+    <?php if (!empty($message)): ?>
+        <div class="alert alert-success bg-dark text-success border-success mb-4"><?= $message ?></div>
+    <?php endif; ?>
 
-                            <span class="text-secondary small">
-                                <i class="fa-solid fa-layer-group me-1" style="color: #ff6b00;"></i> 
-                                <?= count($session->getLobbies()) ?> Lobby(s) configuré(s)
-                            </span>
+    <?php if ($isAdmin): ?>
+        <div class="row g-4 mb-5">
+            
+            <!-- FORMULAIRE 1 : CRÉER UN LOBBY -->
+            <div class="col-lg-6">
+                <div class="p-4 rounded-3 border border-primary border-opacity-25 bg-dark h-100">
+                    <h4 class="fw-bold mb-3 text-white" style="font-family: 'Orbitron', sans-serif; color: #ff6b00;">
+                        1. Créer un Lobby
+                    </h4>
+                    <form method="POST" action="">
+                        <input type="hidden" name="action" value="creer_lobby">
+                        <div class="mb-3">
+                            <label class="form-label small text-white fw-bold">Nom du Lobby *</label>
+                            <input type="text" name="lobby_name" class="form-control bg-dark text-white border-secondary border-opacity-25" required placeholder="Ex: Poule A">
                         </div>
-
-                        <!-- GRILLE DES LOBBIES DE CETTE SESSION -->
-                        <div class="row g-3">
-                            <?php foreach ($session->getLobbies() as $lobby): ?>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="p-3 rounded border border-secondary border-opacity-10 h-100 bg-dark">
-                                        
-                                        <!-- TITRE DU LOBBY -->
-                                        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-10">
-                                            <h5 class="fw-bold mb-0" style="font-family: 'Orbitron', sans-serif; color: #ff6b00;">
-                                                <i class="fa-solid fa-trophy fs-6 me-2"></i><?= htmlspecialchars($lobby->getName()) ?>
-                                            </h5>
-                                            <span class="badge bg-secondary bg-opacity-25 text-white-50 small">
-                                                <?= count($lobby->getPlayerIds()) ?> joueur(s)
-                                            </span>
-                                        </div>
-
-                                        <!-- LISTE DES JOUEURS DANS LE LOBBY -->
-                                        <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
-                                            <?php if (empty($lobby->getPlayerIds())): ?>
-                                                <li class="text-secondary small italic">Aucun joueur assigné</li>
-                                            <?php else: ?>
-                                                <?php foreach ($lobby->getPlayerIds() as $playerId): ?>
-                                                    <?php $player = $dataManager->getPlayerById($playerId); ?>
-                                                    <?php if ($player): ?>
-                                                        <li class="p-2 rounded border border-secondary border-opacity-10 d-flex align-items-center gap-2" style="background-color: #1f2833;">
-                                                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold small" 
-                                                                 style="width: 28px; height: 28px; background-color: rgba(255, 107, 0, 0.1); color: #ff6b00; border: 1px solid rgba(255, 107, 0, 0.3);">
-                                                                <?= strtoupper(substr($player->getPseudo() !== '' ? $player->getPseudo() : 'J', 0, 2)) ?>
-                                                            </div>
-                                                            <span class="text-white fw-medium small">
-                                                                <?= htmlspecialchars($player->getPseudo()) ?>
-                                                            </span>
-                                                        </li>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </ul>
-
+                        <div class="mb-3">
+                            <label class="form-label small text-white fw-bold">Sélectionner les Joueurs du Lobby</label>
+                            <div class="p-2 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25" style="max-height: 150px; overflow-y: auto;">
+                                <?php foreach ($allPlayers as $player): ?>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="lobby_players[]" value="<?= $player->getId() ?>" id="lp_<?= $player->getId() ?>">
+                                        <label class="form-check-label text-white small" for="lp_<?= $player->getId() ?>">
+                                            <?= htmlspecialchars($player->getPseudo()) ?>
+                                        </label>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
-
-                    </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Créer le Lobby</button>
+                    </form>
                 </div>
-            <?php endforeach; ?>
+            </div>
+
+            <!-- FORMULAIRE 2 : CRÉER UNE ÉQUIPE AU SEIN D'UN LOBBY -->
+            <div class="col-lg-6">
+                <div class="p-4 rounded-3 border border-info border-opacity-25 bg-dark h-100">
+                    <h4 class="fw-bold mb-3 text-white" style="font-family: 'Orbitron', sans-serif; color: #0dcaf0;">
+                        2. Créer une Équipe dans un Lobby
+                    </h4>
+                    <form method="POST" action="">
+                        <input type="hidden" name="action" value="creer_equipe_lobby">
+                        <div class="mb-3">
+                            <label class="form-label small text-white fw-bold">Choisir le Lobby *</label>
+                            <select name="lobby_id" class="form-select bg-dark text-white border-secondary border-opacity-25" required>
+                                <option value="">-- Sélectionner un Lobby --</option>
+                                <?php foreach ($allLobbies as $l): ?>
+                                    <option value="<?= $l->getId() ?>"><?= htmlspecialchars($l->getName()) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-white fw-bold">Nom de l'Équipe *</label>
+                            <input type="text" name="team_name" class="form-control bg-dark text-white border-secondary border-opacity-25" required placeholder="Ex: Team Alpha">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-white fw-bold">Membres de l'équipe *</label>
+                            <div class="p-2 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25" style="max-height: 120px; overflow-y: auto;">
+                                <?php foreach ($allPlayers as $player): ?>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="team_players[]" value="<?= $player->getId() ?>" id="tp_<?= $player->getId() ?>">
+                                        <label class="form-check-label text-white small" for="tp_<?= $player->getId() ?>">
+                                            <?= htmlspecialchars($player->getPseudo()) ?>
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info text-white w-100 fw-bold">Ajouter l'Équipe au Lobby</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     <?php endif; ?>
 
-</div>
+    <!-- AFFICHAGE DES LOBBIES ET LEUR COMPOSITION -->
+    <div class="row g-4">
+        <?php foreach ($allLobbies as $lobby): ?>
+            <div class="col-md-6">
+                <div class="p-4 rounded-3 border border-secondary border-opacity-25 bg-dark h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                        <h4 class="fw-bold text-white mb-0" style="font-family: 'Orbitron', sans-serif; color: #ff6b00;">
+                            <i class="fa-solid fa-layer-group me-2"></i><?= htmlspecialchars($lobby->getName()) ?>
+                        </h4>
+                        <?php if ($isAdmin): ?>
+                            <form method="POST" action="" onsubmit="return confirm('Supprimer ce lobby ?');">
+                                <input type="hidden" name="action" value="supprimer_lobby">
+                                <input type="hidden" name="lobby_id" value="<?= $lobby->getId() ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-trash-can"></i></button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+                    <!-- ÉQUIPES DU LOBBY -->
+                    <div class="mb-3">
+                        <span class="small text-info fw-bold">Équipes dans ce lobby :</span>
+                        <?php if (empty($lobby->getTeamIds())): ?>
+                            <div class="text-secondary small italic">Aucune équipe formée.</div>
+                        <?php else: ?>
+                            <div class="d-flex flex-column gap-2 mt-1">
+                                <?php foreach ($lobby->getTeamIds() as $tId): ?>
+                                    <?php $team = $dataManager->getTeamById($tId); if (!$team) continue; ?>
+                                    <div class="p-2 rounded border border-secondary border-opacity-10 bg-black bg-opacity-25">
+                                        <div class="fw-bold text-info small"><i class="fa-solid fa-users me-1"></i><?= htmlspecialchars($team->getName()) ?></div>
+                                        <div class="micro-text text-secondary">
+                                            Membres: 
+                                            <?php foreach ($team->getPlayerIds() as $pId): ?>
+                                                <?php $p = $dataManager->getPlayerById($pId); if ($p): ?>
+                                                    <span class="text-white-50 me-1"><?= htmlspecialchars($p->getPseudo()) ?></span>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- JOUEURS SOLOS DU LOBBY -->
+                    <div>
+                        <span class="small text-white fw-bold">Joueurs attribués à ce lobby :</span>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <?php foreach ($lobby->getPlayerIds() as $pId): ?>
+                                <?php $p = $dataManager->getPlayerById($pId); if (!$p) continue; ?>
+                                <span class="badge bg-black border border-secondary text-white"><?= htmlspecialchars($p->getPseudo()) ?></span>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+</div>
